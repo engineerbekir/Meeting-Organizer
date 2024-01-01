@@ -16,7 +16,7 @@ Meeting Organizer is a simple web application that helps you organize and track 
 
 ## Getting Started
 
-1. Clone the repository:
+- Clone the repository:
 
    ```bash
    git clone https://github.com/your-username/meeting-organizer.git
