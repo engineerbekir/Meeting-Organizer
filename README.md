@@ -14,9 +14,4 @@
 
 - **Meeting List**: View a list of all meetings with essential details.
 
-## Getting Started
 
-- Clone the repository:
-
-   ```bash
-   git clone https://github.com/your-username/meeting-organizer.git
