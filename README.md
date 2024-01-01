@@ -2,7 +2,7 @@
 
 Meeting Organizer is a simple web application that helps you organize and track your meetings. You can add, update, and delete meetings with ease. The project comes with a user-friendly interface and a straightforward API for customization.
 
-<img align="center" src = "https://github.com/engineerbekir/Meeting-Organizer/blob/master/MeetingOrganizer.png" width = "820" height ="220"/>
+<img align="center" src = "https://github.com/engineerbekir/Meeting-Organizer/blob/master/MeetingOrganizer.png" width = "820" height ="400"/>
 
 ## Features
 
