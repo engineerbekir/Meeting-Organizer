@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Organizer</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 800px; /* Maximum width of the content block */
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        form {
+            margin-bottom: 20px;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-left: 5px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            margin-left: 5px;
+        }
+
+        input, select {
+            margin-bottom: 10px;
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-left: 5px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #007BFF;
+            color: #fff;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            margin-left: 5px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-left: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Meeting Organizer</h1>
+
+        <h2>Add Meeting</h2>
+        <form id="meetingForm">
+            <label for="topic">Topic:</label>
+            <input type="text" id="topic" required><br>
+            <label for="date">Date:</label>
+            <input type="date" id="date" required><br>
+            <label for="startTime">Start Time:</label>
+            <input type="time" id="startTime" required><br>
+            <label for="endTime">End Time:</label>
+            <input type="time" id="endTime" required><br>
+            <label for="participants">Participants (Separated by Commas):</label>
+            <input type="text" id="participants" required><br>
+            <button type="button" onclick="addMeeting()">Add</button>
+        </form>
+
+        <h2>Meeting List</h2>
+        <ul id="meetingList"></ul>
+
+        <h2>Update Meeting</h2>
+        <form id="updateForm">
+            <label for="updateTopic">Meeting Topic to Update:</label>
+            <input type="text" id="updateTopic" required><br>
+            <label for="newTopic">New Topic:</label>
+            <input type="text" id="newTopic" required><br>
+            <label for="newDate">New Date:</label>
+            <input type="date" id="newDate" required><br>
+            <label for="newStartTime">New Start Time:</label>
+            <input type="time" id="newStartTime" required><br>
+            <label for="newEndTime">New End Time:</label>
+            <input type="time" id="newEndTime" required><br>
+            <label for="newParticipants">New Participants (Separated by Commas):</label>
+            <input type="text" id="newParticipants" required><br>
+            <button type="button" onclick="updateMeeting()">Update</button>
+        </form>
+
+        <h2>Delete Meeting</h2>
+        <form id="deleteForm">
+            <label for="deleteMeetingTopic">Meeting Topic to Delete:</label>
+            <input type="text" id="deleteMeetingTopic" required><br>
+            <button type="button" onclick="deleteMeeting()">Delete</button>
+        </form>
+    </div>
+    <script>
+        async function addMeeting() {
+            const topic = document.getElementById('topic').value;
+            const date = document.getElementById('date').value;
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+            const participants = document.getElementById('participants').value.split(',');
+
+            const response = await fetch('/api/meetings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    topic: topic,
+                    date: date,
+                    startTime: startTime,
+                    endTime: endTime,
+                    participants: participants,
+                }),
+            });
+
+            const data = await response.json();
+            alert('Meeting added: ' + JSON.stringify(data));
+            fetchMeetings();
+        }
+
+        async function fetchMeetings() {
+            const response = await fetch('/api/meetings');
+            const data = await response.json();
+
+            const meetingList = document.getElementById('meetingList');
+            meetingList.innerHTML = '';
+
+            data.forEach(meeting => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${meeting.topic} - ${meeting.date} - ${meeting.start_time} - ${meeting.end_time} - Participants: ${meeting.participants.join(', ')}`;
+                meetingList.appendChild(listItem);
+            });
+        }
+
+        async function updateMeeting() {
+            const updateTopic = document.getElementById('updateTopic').value;
+
+            // Send a GET request to fetch the existing meeting by topic
+            const getResponse = await fetch(`/api/meetings?topic=${updateTopic}`);
+            if (!getResponse.ok) {
+                alert('Meeting not found!');
+                return;
+            }
+
+            const existingMeeting = await getResponse.json();
+
+            // Get new information from the form
+            const newTopic = document.getElementById('newTopic').value;
+            const newDate = document.getElementById('newDate').value;
+            const newStartTime = document.getElementById('newStartTime').value;
+            const newEndTime = document.getElementById('newEndTime').value;
+            const newParticipants = document.getElementById('newParticipants').value.split(',');
+
+            const putResponse = await fetch(`/api/meetings/${updateTopic}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    new_topic: newTopic || existingMeeting.topic,
+                    new_date: newDate || existingMeeting.date,
+                    new_start_time: newStartTime || existingMeeting.start_time,
+                    new_end_time: newEndTime || existingMeeting.end_time,
+                    new_participants: newParticipants || existingMeeting.participants.split(','),
+                }),
+            });
+
+
+
+            if (putResponse.ok) {
+                const updatedMeeting = await putResponse.json();
+                alert('Meeting updated: ' + JSON.stringify(updatedMeeting));
+                fetchMeetings();
+            } else {
+                alert('Failed to update meeting!');
+            }
+        }
+
+        async function deleteMeeting() {
+            const topicToDelete = document.getElementById('deleteMeetingTopic').value;
+
+            const response = await fetch(`/api/meetings/${topicToDelete}`, {
+                method: 'DELETE',
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                alert('Meeting deleted: ' + JSON.stringify(data));
+                fetchMeetings();
+            } else {
+                const errorData = await response.json();
+                alert('An error occurred while deleting the meeting: ' + JSON.stringify(errorData));
+            }
+        }
+
+
+        fetchMeetings();
+    </script>
+</body>
+</html>
